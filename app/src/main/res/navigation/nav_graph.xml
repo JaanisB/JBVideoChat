@@ -8,11 +8,22 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.jbvideochat.ui.login.LoginFragment"
-        android:label="LoginFragment" />
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_channelsFragment"
+            app:destination="@id/channelsFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_videoChatFragment"
+            app:destination="@id/videoChatFragment" />
+    </fragment>
     <fragment
         android:id="@+id/channelsFragment"
         android:name="com.example.jbvideochat.ui.channels.ChannelsFragment"
-        android:label="ChannelsFragment" />
+        android:label="ChannelsFragment" >
+        <action
+            android:id="@+id/action_channelsFragment_to_videoChatFragment"
+            app:destination="@id/videoChatFragment" />
+    </fragment>
     <fragment
         android:id="@+id/videoChatFragment"
         android:name="com.example.jbvideochat.ui.videochat.VideoChatFragment"
