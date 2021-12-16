@@ -20,13 +20,11 @@ object AppModule {
     fun provideAppIdString () : String = "29a794ea6ffd4eff913b98c00fdb9546"
 
 
-    @Provides
+/*    @Provides
     @Singleton
-    fun providemRtcEventHandler() : IRtcEngineEventHandler {
+    fun provideRtcEventHandler() : IRtcEngineEventHandler {
         return object:  IRtcEngineEventHandler() {
-            override fun onUserJoined(uid: Int, elapsed: Int) {
-                super.onUserJoined(uid, elapsed)
-            }
+
         }
     }
 
@@ -34,7 +32,7 @@ object AppModule {
     // To get application context use annotation @ApplicationContext
     fun provideAgoraRtcEngine(@ApplicationContext context: Context, appId: String, iRtcEngineEventHandler: IRtcEngineEventHandler) : RtcEngine {
         return RtcEngine.create(context, Constants.APP_ID, iRtcEngineEventHandler )
-    }
+    }*/
 
 
 }
