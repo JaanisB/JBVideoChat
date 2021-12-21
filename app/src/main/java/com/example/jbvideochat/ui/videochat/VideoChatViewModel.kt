@@ -12,12 +12,14 @@ class VideoChatViewModel  @Inject constructor(
 
 ): ViewModel() {
 
+    sealed class CreateChannelEvent {
+        data class Error (val error: String) : CreateChannelEvent()
+        object Success : CreateChannelEvent()
+    }
+
 
     private val _isRemoteUserConnected = MutableStateFlow(false)
     val isRemoteUserConnected = _isRemoteUserConnected.asStateFlow()
-
-
-
 
 
 
