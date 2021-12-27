@@ -36,16 +36,12 @@ class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
 
     // State of call
     private var mEndCall = false
-
     // State of "mute"
     private var mMuted = false
-
     // View for remote view
     private var remoteView: SurfaceView? = null
-
     // View for local view
     private var localView: SurfaceView? = null
-
     // Agora rtcEngine
     private lateinit var rtcEngine: RtcEngine
 

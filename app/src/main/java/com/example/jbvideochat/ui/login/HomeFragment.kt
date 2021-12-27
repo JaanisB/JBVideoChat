@@ -30,6 +30,11 @@ class HomeFragment : BindingFragment<FragmentHomeBinding>() {
                 .navigate(R.id.action_loginFragment_to_videoChatFragment)
         }
 
+        binding.btnChat.setOnClickListener {
+            Navigation.findNavController(binding.root)
+                .navigate(R.id.action_homeFragment_to_chatFragment)
+        }
+
         super.onViewCreated(view, savedInstanceState)
     }
 

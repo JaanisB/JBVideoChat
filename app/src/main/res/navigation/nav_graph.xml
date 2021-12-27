@@ -10,20 +10,16 @@
         android:name="com.example.jbvideochat.ui.login.HomeFragment"
         android:label="LoginFragment" >
         <action
-            android:id="@+id/action_loginFragment_to_channelsFragment"
-            app:destination="@id/channelsFragment" />
-        <action
             android:id="@+id/action_loginFragment_to_videoChatFragment"
             app:destination="@id/videoChatFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
     </fragment>
     <fragment
-        android:id="@+id/channelsFragment"
-        android:name="com.example.jbvideochat.ui.channels.ChannelsFragment"
-        android:label="ChannelsFragment" >
-        <action
-            android:id="@+id/action_channelsFragment_to_videoChatFragment"
-            app:destination="@id/videoChatFragment" />
-    </fragment>
+        android:id="@+id/chatFragment"
+        android:name="com.example.jbvideochat.ui.channels.ChatFragment"
+        android:label="ChannelsFragment" />
     <fragment
         android:id="@+id/videoChatFragment"
         android:name="com.example.jbvideochat.ui.videochat.VideoChatFragment"
