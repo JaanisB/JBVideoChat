@@ -18,8 +18,6 @@ import com.example.jbvideochat.R
 import com.example.jbvideochat.databinding.FragmentVideoChatBinding
 import com.example.jbvideochat.ui.BindingFragment
 import com.example.jbvideochat.util.Constants
-import com.example.jbvideochat.util.Constants.CHANNEL
-import com.example.jbvideochat.util.Constants.TOKEN
 import dagger.hilt.android.AndroidEntryPoint
 import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
@@ -27,6 +25,7 @@ import io.agora.rtc.video.VideoCanvas
 import io.agora.rtc.video.VideoEncoderConfiguration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
@@ -97,7 +96,8 @@ class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
         activityResultLauncher.launch(
             arrayOf(
                 Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.INTERNET
             )
         )
 
@@ -106,6 +106,8 @@ class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
 
         lifecycleScope.launch {
 

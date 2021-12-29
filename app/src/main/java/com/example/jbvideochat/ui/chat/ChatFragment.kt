@@ -1,21 +1,30 @@
-package com.example.jbvideochat.ui.channels
+package com.example.jbvideochat.ui.chat
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.example.jbvideochat.databinding.FragmentChatBinding
 import com.example.jbvideochat.ui.BindingFragment
+import com.example.jbvideochat.ui.videochat.VideoChatViewModel
 import com.example.jbvideochat.util.Constants
+import dagger.hilt.android.AndroidEntryPoint
 import io.agora.rtm.*
+import kotlinx.coroutines.flow.collect
 
 
+@AndroidEntryPoint
 class ChatFragment : BindingFragment<FragmentChatBinding>() {
 
     private lateinit var mRtmClient: RtmClient
     private lateinit var mRtmChannel: RtmChannel
+
+    private val viewModel: ChatViewModel by viewModels()
 
     // RTM uid
     private var uid: String? = null
@@ -87,6 +96,30 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.getUserToken()
+
+        lifecycleScope.launchWhenCreated {
+            viewModel.userTokenState.collect { userTokenState ->
+
+                when (userTokenState) {
+                    is ChatViewModel.GetTokenEvent.Success -> {
+                        Toast.makeText(context, "User token loaded $userTokenState", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    is ChatViewModel.GetTokenEvent.Failure -> {
+
+                        Toast.makeText(context, "Failed to get token", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    is ChatViewModel.GetTokenEvent.Loading -> {
+                        Toast.makeText(context, "Loading token", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+
 
         // Login button listener
         binding.loginButton.setOnClickListener {
@@ -122,11 +155,12 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
 
     // When login button is clicked
     fun onClickLogin() {
-        val et_uid = binding.uid
-        uid = et_uid.text.toString()
+
+
+
 
         // Log in to the RTM system
-        mRtmClient.login(Constants.GENERATED_TOKEN, uid, object : ResultCallback<Void> {
+        mRtmClient.login( viewModel.userToken.value, viewModel.username.value, object : ResultCallback<Void> {
 
 
             override fun onSuccess(p0: Void?) {

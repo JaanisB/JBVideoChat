@@ -34,9 +34,20 @@
         app:layout_constraintStart_toStartOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <EditText
+        android:id="@+id/etxt_username"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="30dp"
+        android:background="@drawable/my_border"
+        android:hint="Enter user name"
+        app:layout_constraintBottom_toTopOf="@id/etxt_channelname"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:hint="Enter user name" />
 
     <EditText
-        android:id="@+id/etxt_login"
+        android:id="@+id/etxt_channelname"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginVertical="30dp"
@@ -45,7 +56,6 @@
         app:layout_constraintBottom_toTopOf="@id/btn_chat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-
         tools:hint="Enter channel name" />
 
     <Button

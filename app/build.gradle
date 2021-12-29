@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -56,17 +57,41 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:2.3.5"
     implementation "androidx.navigation:navigation-ui-ktx:2.3.5"
 
+    // Safe args
+    implementation "androidx.navigation:navigation-fragment-ktx:2.3.5"
+    implementation "androidx.navigation:navigation-ui-ktx:2.3.5"
+
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1'
 
     // Coroutine Lifecycle Scopes
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0"
+    // Couratines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1")
 
     // Dagger - Hilt
     implementation "com.google.dagger:hilt-android:2.38.1"
     kapt "com.google.dagger:hilt-compiler:2.38.1"
     kapt "androidx.hilt:hilt-compiler:1.0.0"
+
+    // Hilt for viewmodels
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    kapt "androidx.hilt:hilt-compiler:1.0.0"
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
+
+    // Moshi - for creating kotlin objects from JSON class
+    implementation 'com.squareup.moshi:moshi-kotlin:1.12.0'
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.8.0'
+
+    // Gson (To convert raw JSON to pretty JSON)
+    implementation 'com.google.code.gson:gson:2.8.7'
+
+    // Okhttp3 for the POST requests
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 
     // Agora Video-call SDK
     implementation 'io.agora.rtc:full-sdk:3.5.0'

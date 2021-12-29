@@ -7,8 +7,8 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.jbvideochat.ui.login.HomeFragment"
-        android:label="LoginFragment" >
+        android:name="com.example.jbvideochat.ui.home.HomeFragment"
+        android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_videoChatFragment"
             app:destination="@id/videoChatFragment" />
@@ -16,12 +16,28 @@
             android:id="@+id/action_homeFragment_to_chatFragment"
             app:destination="@id/chatFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/chatFragment"
-        android:name="com.example.jbvideochat.ui.channels.ChatFragment"
-        android:label="ChannelsFragment" />
+        android:name="com.example.jbvideochat.ui.chat.ChatFragment"
+        android:label="ChannelsFragment">
+        <argument
+            android:name="username_ch"
+            app:argType="string" />
+        <argument
+            android:name="channel_name_ch"
+            app:argType="string" />
+    </fragment>
+
     <fragment
         android:id="@+id/videoChatFragment"
         android:name="com.example.jbvideochat.ui.videochat.VideoChatFragment"
-        android:label="VideoChatFragment" />
+        android:label="VideoChatFragment">
+        <argument
+            android:name="username_v"
+            app:argType="string" />
+        <argument
+            android:name="channel_name_v"
+            app:argType="string" />
+    </fragment>
 </navigation>
