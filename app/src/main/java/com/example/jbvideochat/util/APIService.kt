@@ -1,5 +1,6 @@
 package com.example.jbvideochat.util
 
+import com.example.jbvideochat.model.Token
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -9,7 +10,7 @@ import retrofit2.http.POST
 interface APIService {
 
     @POST("rtmtoken")
-    suspend fun getToken(@Body requestBody: RequestBody): Response<ResponseBody>
+    suspend fun getToken(@Body requestBody: RequestBody): Response<Token>
 
 
 }

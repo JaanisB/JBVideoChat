@@ -41,6 +41,8 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
         savedInstanceState: Bundle?
     ): View? {
 
+
+
         try {
 
             // Initialize the RTM client
@@ -103,7 +105,7 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
 
                 when (userTokenState) {
                     is ChatViewModel.GetTokenEvent.Success -> {
-                        Toast.makeText(context, "User token loaded $userTokenState", Toast.LENGTH_SHORT)
+                        Toast.makeText(context, "User token loaded successfully.", Toast.LENGTH_SHORT)
                             .show()
                     }
                     is ChatViewModel.GetTokenEvent.Failure -> {
@@ -129,7 +131,7 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
         // Join channel button
         binding.joinButton.setOnClickListener {
             onClickJoin()
-        }
+         }
 
         // Send channel message button
         binding.sendChannelMsgButton.setOnClickListener {
@@ -156,11 +158,8 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
     // When login button is clicked
     fun onClickLogin() {
 
-
-
-
         // Log in to the RTM system
-        mRtmClient.login( viewModel.userToken.value, viewModel.username.value, object : ResultCallback<Void> {
+        mRtmClient.login(viewModel.userToken.value?.token, viewModel.username.value, object : ResultCallback<Void> {
 
 
             override fun onSuccess(p0: Void?) {
@@ -180,7 +179,7 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
     // Button to join the RTM channel
     fun onClickJoin() {
 
-        val channel_name = binding.channelName.text.toString()
+        val channel_name = viewModel.channelname.value
         // Create a channel listener
         val mRtmChannelListener: RtmChannelListener = object : RtmChannelListener {
             override fun onMemberCountUpdated(i: Int) {}
@@ -213,8 +212,11 @@ class ChatFragment : BindingFragment<FragmentChatBinding>() {
         } catch (e: RuntimeException) {
         }
         // Join the RTM channel
-        mRtmChannel.join(object : ResultCallback<Void?> {
-            override fun onSuccess(responseInfo: Void?) {
+
+        mRtmChannel.join(object : ResultCallback<Void> {
+
+            override fun onSuccess(responseInfo: Void) {
+
                 Toast.makeText(requireContext(), "Successfully joined ${uid.toString()} channel", Toast.LENGTH_SHORT).show()
             }
             override fun onFailure(errorInfo: ErrorInfo) {

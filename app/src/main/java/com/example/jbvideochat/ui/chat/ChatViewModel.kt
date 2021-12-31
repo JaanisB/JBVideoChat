@@ -18,17 +18,21 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel() {
 
     sealed class GetTokenEvent {
-        class Success(token: String) : GetTokenEvent()
+        class Success(token: Token) : GetTokenEvent()
         class Failure(errorText: String) : GetTokenEvent()
         object Loading : GetTokenEvent()
         object Empty : GetTokenEvent()
     }
 
+    /**
+     * GET TOKEN LOGIC
+     * */
+
     private val _userTokenState = MutableStateFlow<GetTokenEvent>(GetTokenEvent.Empty)
     val userTokenState: StateFlow<GetTokenEvent> = _userTokenState
 
-    private val _userToken = MutableLiveData<String>()
-    val userToken: LiveData<String>
+    private val _userToken = MutableLiveData<Token>()
+    val userToken: LiveData<Token>
         get() = _userToken
 
 
@@ -65,4 +69,6 @@ class ChatViewModel @Inject constructor(
             }
         }
     }
+
+
 }

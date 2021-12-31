@@ -14,44 +14,18 @@
         android:layout_marginTop="40dp"
         android:text="@string/login_button"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/uid"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@id/logout_button"/>
-
-    <EditText
-        android:id="@+id/uid"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="40dp"
-        android:hint="@string/uid"
-        android:inputType="text"
-        android:lines="1"
-        android:padding="5dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/channel_name"
-        android:layout_width="wrap_content"
-        android:layout_height="41dp"
-        android:layout_marginStart="16dp"
-        android:ems="6"
-        android:hint="@string/channel_name"
-        android:inputType="text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/join_button" />
 
     <Button
         android:id="@+id/join_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
         android:layout_marginTop="28dp"
-        android:layout_marginBottom="24dp"
         android:text="@string/join_button"
         app:layout_constraintEnd_toStartOf="@+id/leave_button"
-        app:layout_constraintStart_toEndOf="@+id/channel_name"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_button" />
 
     <EditText

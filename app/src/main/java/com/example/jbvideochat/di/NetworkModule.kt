@@ -23,11 +23,15 @@ object NetworkModule {
             .build()
     }
 
+
     @Singleton
     @Provides
     fun provideUserService (moshi: Moshi) : APIService {
         return Retrofit.Builder()
+                // IP for emulator : http://10.0.2.2:3000/
+                // IP for phone : http://192.168.1.107:3000/
             .baseUrl("http://10.0.2.2:3000/")
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(APIService::class.java)
     }
