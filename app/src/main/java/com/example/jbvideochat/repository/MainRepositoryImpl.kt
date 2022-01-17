@@ -35,8 +35,10 @@ class MainRepositoryImpl @Inject constructor(
 
                 Resource.Success(result)
 
+
             } else {
-                Resource.Error(null, "Failed to get retrofit response")
+                val errorMessage = response.errorBody().toString()
+                Resource.Error(null, "Failed to get retrofit response, because $errorMessage")
             }
 
         } catch (e: Exception) {

@@ -1,10 +1,14 @@
 package com.example.jbvideochat.ui.chat
 
+import android.widget.Toast
 import androidx.lifecycle.*
+import com.example.jbvideochat.model.Message
 import com.example.jbvideochat.model.Token
 import com.example.jbvideochat.repository.MainRepositoryImpl
 import com.example.jbvideochat.util.Resource
+import com.example.jbvideochat.util.RtmClientListnerImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.agora.rtm.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +18,10 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val state: SavedStateHandle,
-    private val mainRepositoryImpl: MainRepositoryImpl
+    private val mainRepositoryImpl: MainRepositoryImpl,
+    private val mRtmClientListener: RtmClientListnerImpl,
+    private val mRtmClient: RtmClient
+
 ) : ViewModel() {
 
     sealed class GetTokenEvent {
@@ -25,7 +32,7 @@ class ChatViewModel @Inject constructor(
     }
 
     /**
-     * GET TOKEN LOGIC
+     * GET TOKEN LOGIC AND MESSAGES
      * */
 
     private val _userTokenState = MutableStateFlow<GetTokenEvent>(GetTokenEvent.Empty)
@@ -45,6 +52,14 @@ class ChatViewModel @Inject constructor(
     private val _channelname = MutableLiveData(state.get<String>("channel_name_ch")!!)
     val channelname: LiveData<String>
         get() = _channelname
+
+    private val _messageList = MutableLiveData<List<Message>>()
+    val messageList: LiveData<List<Message>>
+        get() = _messageList
+
+    private val _actualMessage = mRtmClientListener.actualMessage
+    val actualMessage: LiveData<String>
+        get() = _actualMessage
 
 
     fun getUserToken() {
@@ -68,6 +83,140 @@ class ChatViewModel @Inject constructor(
 
             }
         }
+    }
+
+    fun updateMessageList(id: Int, username: String, message: String) {
+
+        viewModelScope.launch {
+            _messageList.value = _messageList.value?.plus(Message(id, username, message)) ?: listOf(
+                Message(
+                    id,
+                    username,
+                    message
+                )
+            )
+        }
+
+    }
+
+
+    // VIDEO CHAT SDK
+
+    private lateinit var mRtmChannel: RtmChannel
+
+    // RTM uid
+    private var uid: String? = null
+
+
+    // Login to SDK
+    fun login() {
+
+        // Log in to the RTM system
+        mRtmClient.login(
+            userToken.value?.token,
+            username.value,
+            object : ResultCallback<Void> {
+
+
+                override fun onSuccess(p0: Void?) {
+
+
+                }
+
+                override fun onFailure(p0: ErrorInfo?) {
+
+                }
+            })
+    }
+
+    // Join the RTM channel
+    fun joinChannel() {
+
+        val channel_name = channelname.value
+        // Create a channel listener
+        val mRtmChannelListener: RtmChannelListener = object : RtmChannelListener {
+            override fun onMemberCountUpdated(i: Int) {}
+            override fun onAttributesUpdated(list: List<RtmChannelAttribute>) {}
+            override fun onMessageReceived(message: RtmMessage, fromMember: RtmChannelMember) {
+                val text = message.text
+                val fromUser = fromMember.userId
+                var id = 1
+                val message_text = "Message received from $fromUser : $text\n"
+
+            }
+
+            override fun onImageMessageReceived(
+                rtmImageMessage: RtmImageMessage,
+                rtmChannelMember: RtmChannelMember
+            ) {
+            }
+
+            override fun onFileMessageReceived(
+                rtmFileMessage: RtmFileMessage,
+                rtmChannelMember: RtmChannelMember
+            ) {
+            }
+
+            override fun onMemberJoined(member: RtmChannelMember) {}
+            override fun onMemberLeft(member: RtmChannelMember) {}
+        }
+        try {
+            // Create an RTM channel
+            mRtmChannel = mRtmClient.createChannel(channel_name, mRtmChannelListener)
+        } catch (e: RuntimeException) {
+        }
+        // Join the RTM channel
+
+        mRtmChannel.join(object : ResultCallback<Void> {
+
+            override fun onSuccess(responseInfo: Void) {
+
+            }
+
+            override fun onFailure(errorInfo: ErrorInfo) {
+                val text: CharSequence =
+                    "User: " + uid.toString() + " failed to join the channel!" + errorInfo.toString()
+
+            }
+        })
+    }
+
+    // Send channel message
+    fun sendChannelMsg(msgText: String) {
+
+        //Create RTM message instance
+        val message: RtmMessage = mRtmClient.createMessage()
+        message.text = msgText
+
+        // Send message to channel
+        mRtmChannel.sendMessage(message, object : ResultCallback<Void?> {
+            override fun onSuccess(p0: Void?) {
+                val text = """"Message sent to channel ${mRtmChannel.id} : ${msgText}"""
+                // writeToMessageHistory(text)
+
+
+                //Update viewmodel varibale for ChatAdapter
+                updateMessageList(1, "user1", msgText!!)
+
+            }
+
+            override fun onFailure(p0: ErrorInfo?) {
+                val text =
+                    """Message fails to send to channel ${mRtmChannel.id} Error: $p0"""
+                // writeToMessageHistory(text)
+            }
+
+        })
+    }
+
+    // Log out of RTM system
+    fun logout() {
+        mRtmClient.logout(null)
+    }
+
+    // Leave channel
+    fun leave() {
+        mRtmChannel.leave(null)
     }
 
 
