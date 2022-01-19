@@ -1,36 +1,24 @@
 package com.example.jbvideochat.ui.chat
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import com.example.jbvideochat.databinding.FragmentChatBinding
 import com.example.jbvideochat.ui.BindingFragment
-import com.example.jbvideochat.ui.videochat.VideoChatViewModel
-import com.example.jbvideochat.util.Constants
-import com.example.jbvideochat.util.RtmClientListnerImpl
 import dagger.hilt.android.AndroidEntryPoint
-import io.agora.rtc.RtcEngine
-import io.agora.rtm.*
 import kotlinx.coroutines.flow.collect
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class ChatFragment  : BindingFragment<FragmentChatBinding>() {
 
-
-
-
     private val viewModel: ChatViewModel by viewModels()
-
-
 
     override val bindingInflater: (LayoutInflater) -> ViewBinding
         get() = FragmentChatBinding::inflate
@@ -97,7 +85,9 @@ class ChatFragment  : BindingFragment<FragmentChatBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.getUserToken()
+        if (viewModel.isLoggedInState.value == false) {
+            viewModel.getUserToken()
+        }
 
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
         binding.lifecycleOwner = viewLifecycleOwner
@@ -108,6 +98,7 @@ class ChatFragment  : BindingFragment<FragmentChatBinding>() {
 
 
         binding.messageRecyclerview.adapter = ChatAdapter()
+
 
 
         lifecycleScope.launchWhenCreated {
@@ -123,8 +114,7 @@ class ChatFragment  : BindingFragment<FragmentChatBinding>() {
                             .show()
                     }
                     is ChatViewModel.GetTokenEvent.Failure -> {
-
-                        Toast.makeText(context, "Failed to get token", Toast.LENGTH_SHORT)
+                        Toast.makeText(context, "Failed to get token ${userTokenState.errorText}", Toast.LENGTH_SHORT)
                             .show()
                     }
                     is ChatViewModel.GetTokenEvent.Loading -> {
@@ -136,28 +126,67 @@ class ChatFragment  : BindingFragment<FragmentChatBinding>() {
             }
         }
 
-        // Pbserve data from RtmClienListener onMessageReceived callback
-        viewModel.actualMessage.observe(viewLifecycleOwner, Observer {
-            binding.messageHistory.text = it
-        })
+        lifecycleScope.launchWhenCreated {
+            viewModel.loginState.collect{ loginState ->
+                when (loginState) {
+                    is ChatViewModel.LoginEvent.Loading -> {
+                        binding.loginStatus.apply {
+                            text = "Login: Wait"
+                            setBackgroundColor(Color.YELLOW)
+                        }
+                    }
+                    is ChatViewModel.LoginEvent.Success -> {
+                        binding.loginStatus.apply {
+                            text = "Login: OK"
+                            setBackgroundColor(Color.GREEN)
+
+                        }
+                    }
+                    is ChatViewModel.LoginEvent.Error -> {
+                        binding.loginStatus.apply {
+                            text = "Login: Error"
+                            setBackgroundColor(Color.RED)
+
+                        }
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launchWhenCreated {
+            viewModel.channelState.collect{ channelState ->
+                when (channelState) {
+                    is ChatViewModel.ChannelEvent.Loading -> {
+                        binding.channelStatus.apply {
+                            text = "Channel: Wait"
+                            setBackgroundColor(Color.YELLOW)
+                        }
+                    }
+                    is ChatViewModel.ChannelEvent.Success -> {
+                        binding.channelStatus.apply {
+                            text = "Channel: OK"
+                            setBackgroundColor(Color.GREEN)
+                        }
+                    }
+
+                    is ChatViewModel.ChannelEvent.Error -> {
+                        binding.channelStatus.apply {
+                            text = "Channel: Error"
+                            setBackgroundColor(Color.RED)
+                        }
+                    }
+                }
+            }
+        }
+
 
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
         binding.lifecycleOwner = viewLifecycleOwner
-
 
         // Initialize viewModel
         binding.viewmodel = viewModel
 
 
-        // Login button listener
-        binding.loginButton.setOnClickListener {
-            onClickLogin()
-        }
-
-        // Join channel button
-        binding.joinButton.setOnClickListener {
-            onClickJoin()
-        }
 
         // Send channel message button
         binding.sendChannelMsgButton.setOnClickListener {
@@ -181,16 +210,6 @@ class ChatFragment  : BindingFragment<FragmentChatBinding>() {
 
     }
 
-    // When login button is clicked
-    fun onClickLogin() {
-        viewModel.login()
-    }
-
-
-    // Button to join the RTM channel
-    fun onClickJoin() {
-        viewModel.joinChannel()
-    }
 
     // Button to send channel message
     fun onClickSendChannelMsg() {
@@ -207,11 +226,5 @@ class ChatFragment  : BindingFragment<FragmentChatBinding>() {
     fun onClickLeave() {
 
     }
-
-    // Function to write to message history
-    fun writeToMessageHistory(record: String) {
-        binding.messageHistory.append(record)
-    }
-
 
 }

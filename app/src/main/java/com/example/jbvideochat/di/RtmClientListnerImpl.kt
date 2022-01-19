@@ -1,28 +1,32 @@
-package com.example.jbvideochat.util
+package com.example.jbvideochat.di
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import io.agora.rtm.*
-import javax.inject.Inject
 
 
 class RtmClientListnerImpl: RtmClientListener {
 
 
-    val actualMessage = MutableLiveData<String>()
+    private val _actualMessage = MutableLiveData<String>()
+    val actualMessage: LiveData<String>
+        get() = _actualMessage
 
-    val connectionState = MutableLiveData<String>()
+    private val _connectionState = MutableLiveData<String>()
+    val connectionState: LiveData<String>
+        get() = _connectionState
 
     override fun onConnectionStateChanged(state: Int, reason: Int) {
         val text =
             """Connection state changed to ${state}Reason: $reason """.trimIndent()
-        connectionState.value = text
+        _connectionState.value = text
     }
 
     override fun onMessageReceived(rtmMessage: RtmMessage?, peerId: String?) {
 
         val text = """Message received from $peerId Message: ${rtmMessage?.text}"""
 
-        actualMessage.value = text
+        _actualMessage.value = text
     }
 
     override fun onImageMessageReceivedFromPeer(p0: RtmImageMessage?, p1: String?) {
