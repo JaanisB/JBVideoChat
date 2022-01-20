@@ -9,9 +9,12 @@ import com.example.jbvideochat.util.Resource
 import com.example.jbvideochat.di.RtmClientListnerImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.agora.rtm.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -24,6 +27,7 @@ class ChatViewModel @Inject constructor(
     private val mRtmChannelListener: RtmChannelListenerImpl
 
 ) : ViewModel() {
+
 
     sealed class GetTokenEvent {
         class Success(token: Token) : GetTokenEvent()
@@ -83,7 +87,7 @@ class ChatViewModel @Inject constructor(
     val messageList: LiveData<List<Message>>
         get() = _messageList
 
-    private val _receivedMessageList = MutableLiveData<List<Message>>(mRtmChannelListener.messageList)
+    private val _receivedMessageList = MutableLiveData<List<Message>>()
     val receivedMessageList: LiveData<List<Message>>
         get() = _receivedMessageList
 
@@ -109,22 +113,48 @@ class ChatViewModel @Inject constructor(
                     _userTokenState.value = GetTokenEvent.Failure(userResponse.message!!)
                 }
 
+
             }
         }
     }
+
 
     fun updateMessageList(isReceived: Boolean, username: String, message: String) {
 
         viewModelScope.launch {
             _messageList.value =
                 _messageList.value?.plus(Message(isReceived, username, message)) ?: listOf(
-                    Message(
-                        isReceived,
-                        username,
-                        message
-                    )
+                    Message(isReceived, username, message)
                 )
         }
+    }
+
+    val myFun: (RtmChannelMember?, RtmMessage?) -> Unit =
+        { fromUser, message ->
+
+            viewModelScope.launch {
+                    _receivedMessageList.value = _receivedMessageList.value?.plus(
+                        Message(
+                            true,
+                            fromUser!!.userId,
+                            message!!.text
+                        )
+                    )
+                        ?: listOf(
+                            Message(true, fromUser!!.userId, message!!.text)
+                        )
+            }
+        }
+
+
+/*    fun updateReceivedMessageList() {
+        viewModelScope.launch {
+            mRtmChannelListener.myCallBackFun = myFun
+        }
+    }*/
+
+    init {
+        mRtmChannelListener.myCallBackFun = myFun
     }
 
 

@@ -3,20 +3,24 @@ package com.example.jbvideochat.di
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.jbvideochat.model.Message
+import com.example.jbvideochat.ui.chat.ChatViewModel
 import io.agora.rtm.*
+import kotlinx.coroutines.Job
 
-class RtmChannelListenerImpl : RtmChannelListener {
+class RtmChannelListenerImpl () : RtmChannelListener {
 
-    var messageList = mutableListOf<Message>()
+
 /*
     private val _receivedChannelMessage = MutableLiveData<Message>()
     val receivedChannelMessage: LiveData<Message>
         get() = _receivedChannelMessage
 */
+    var myCallBackFun: ((fromUser: RtmChannelMember?, message: RtmMessage?) -> Unit)? = null
 
-    private val _receivedChannelMessageList = MutableLiveData<List<Message>>()
+
+/*    private val _receivedChannelMessageList = MutableLiveData<List<Message>>()
     val receivedChannelMessageList: LiveData<List<Message>>
-        get() = _receivedChannelMessageList
+        get() = _receivedChannelMessageList*/
 
     override fun onMemberCountUpdated(p0: Int) {
         TODO("Not yet implemented")
@@ -28,9 +32,11 @@ class RtmChannelListenerImpl : RtmChannelListener {
 
     override fun onMessageReceived(message: RtmMessage?, fromUser: RtmChannelMember?) {
 
-        messageList.add(Message(true, fromUser!!.userId, message!!.text))
+        myCallBackFun?.invoke(fromUser, message)
 
 /*        _receivedChannelMessage.value = Message(true, fromUser!!.userId, message!!.text)
+
+
 
         _receivedChannelMessageList.value = _receivedChannelMessageList.value?.plus(
             Message(

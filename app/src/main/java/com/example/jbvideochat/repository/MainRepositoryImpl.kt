@@ -44,7 +44,5 @@ class MainRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Resource.Error(null, "Unknown error!")
         }
-
-
     }
 }
