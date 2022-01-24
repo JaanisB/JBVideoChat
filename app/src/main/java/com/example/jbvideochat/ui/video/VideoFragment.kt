@@ -1,4 +1,4 @@
-package com.example.jbvideochat.ui.videochat
+package com.example.jbvideochat.ui.video
 
 //Imports from Agora documentation
 import android.Manifest
@@ -9,7 +9,6 @@ import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -17,75 +16,67 @@ import androidx.viewbinding.ViewBinding
 import com.example.jbvideochat.R
 import com.example.jbvideochat.databinding.FragmentVideoChatBinding
 import com.example.jbvideochat.ui.BindingFragment
-import com.example.jbvideochat.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
-import io.agora.rtc.IRtcEngineEventHandler
 import io.agora.rtc.RtcEngine
 import io.agora.rtc.video.VideoCanvas
-import io.agora.rtc.video.VideoEncoderConfiguration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.collect
+import javax.inject.Inject
+
 
 @AndroidEntryPoint
-class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
+class VideoFragment : BindingFragment<FragmentVideoChatBinding>() {
 
+    @Inject
+    lateinit var rtcEngine: RtcEngine
 
-    private val viewmodel: VideoChatViewModel by viewModels()
+    private val viewmodel: VideoViewModel by viewModels()
 
     // State of call
     private var mEndCall = false
+
     // State of "mute"
     private var mMuted = false
+
     // View for remote view
     private var remoteView: SurfaceView? = null
+
+
     // View for local view
     private var localView: SurfaceView? = null
-    // Agora rtcEngine
-    private lateinit var rtcEngine: RtcEngine
 
-    // Initialize mRtcEventHandler and override callback methods
-    private val mRtcEventHandler = object : IRtcEngineEventHandler() {
-        // Listen for the remote user joining the channel to get the uid of the user.
-        override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
-            lifecycleScope.launch {
-                Toast.makeText(requireContext(), "Joined Channel Successfully", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-
-        override fun onFirstRemoteVideoDecoded(uid: Int, width: Int, height: Int, elapsed: Int) {
-            lifecycleScope.launch {
-                setupRemoteVideoView(uid)
-            }
-        }
-
-        override fun onUserOffline(uid: Int, reason: Int) {
-            lifecycleScope.launch {
-                removeRemoteVideo()
-            }
-        }
-    }
-
-    private val isAllPermissionsGranted = mutableListOf<Int>()
 
     private val activityResultLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         )
         { permissions ->
-            // Handle Permission granted/rejected
 
+            // Handle Permission granted/rejected
             permissions.entries.forEach {
                 val permissionName = it.key
                 val isGranted = it.value
                 if (isGranted) {
-                    isAllPermissionsGranted.add(1)
+
                 } else {
-                    isAllPermissionsGranted.add(0)
+                    grantPermission(permissionName)
                 }
             }
+
+            val isAllPermissionsGranted = permissions.values.all { isGranted ->
+                isGranted == true
+            }
+
+            if (isAllPermissionsGranted) {
+                viewmodel.permissionGranted()
+            }
         }
+
+    private fun grantPermission(permission: String) {
+        activityResultLauncher.launch(
+            arrayOf(permission)
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -101,18 +92,16 @@ class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
             )
         )
 
+
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-
         lifecycleScope.launch {
-
             delay(300L)
-            if (checkIfAllPermissionsAllowed(isAllPermissionsGranted)) {
+            if (viewmodel.permissionState.value) {
                 initializeAndJoinChannel()
             }
         }
@@ -134,48 +123,40 @@ class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
         }
 
         binding.buttonSwitchCamera.setOnClickListener {
-            rtcEngine.switchCamera()
+            viewmodel.switchCamera()
         }
 
         binding.buttonMute.setOnClickListener {
-            mMuted = !mMuted
-            rtcEngine.muteLocalAudioStream(mMuted)
-            val res: Int = if (mMuted) {
+            viewmodel.muteCall()
+            val res: Int = if (viewmodel.mMuted) {
                 R.drawable.ic_baseline_mic_off_24
             } else {
                 R.drawable.ic_baseline_mic_24
             }
-
             binding.buttonMute.setImageResource(res)
         }
 
 
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        RtcEngine.destroy()
+    override fun onDestroy() {
+        super.onDestroy()
+        viewmodel.leaveChannel()
+//        RtcEngine.destroy()
     }
+
 
     override val bindingInflater: (LayoutInflater) -> ViewBinding
         get() = FragmentVideoChatBinding::inflate
 
-    fun checkIfAllPermissionsAllowed(list: List<Int>): Boolean {
-        var result = 0
-        list.forEach {
-            result += it
-        }
-        return result == list.size
-    }
 
     private fun initializeAndJoinChannel() {
 
         // This is our usual steps for joining
         // a channel and starting a call.
-        initRtcEngine()
-        setupVideoConfig()
+        viewmodel.setupVideoConfig()
         setupLocalVideoView()
-        joinChannel()
+        viewmodel.joinChannel()
     }
 
     private fun setupLocalVideoView() {
@@ -200,28 +181,6 @@ class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
     }
 
 
-
-    private fun initRtcEngine() {
-        try {
-            rtcEngine = RtcEngine.create(requireContext(), Constants.APP_ID, mRtcEventHandler)
-        } catch (e: Exception) {
-
-        }
-    }
-
-    private fun setupVideoConfig() {
-        rtcEngine.enableVideo()
-
-        rtcEngine.setVideoEncoderConfiguration(
-            VideoEncoderConfiguration(
-                VideoEncoderConfiguration.VD_640x360,
-                VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
-                VideoEncoderConfiguration.STANDARD_BITRATE,
-                VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_FIXED_PORTRAIT
-            )
-        )
-    }
-
     private fun removeLocalVideo() {
         binding.remoteVideoView.removeView(remoteView)
     }
@@ -234,26 +193,16 @@ class VideoChatFragment : BindingFragment<FragmentVideoChatBinding>() {
     }
 
 
-    private fun joinChannel() {
-        rtcEngine.joinChannel(Constants.TOKEN, Constants.CHANNEL, "", 0)
-    }
-
     private fun startCall() {
         setupLocalVideoView()
-        joinChannel()
+        viewmodel.joinChannel()
     }
 
     private fun endCall() {
         removeLocalVideo()
         removeRemoteVideo()
-        leaveChannel()
+        viewmodel.leaveChannel()
     }
-
-    private fun leaveChannel() {
-        rtcEngine.leaveChannel()
-    }
-
-
 
 
 }

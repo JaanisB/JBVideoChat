@@ -10,17 +10,9 @@ import kotlinx.coroutines.Job
 class RtmChannelListenerImpl () : RtmChannelListener {
 
 
-/*
-    private val _receivedChannelMessage = MutableLiveData<Message>()
-    val receivedChannelMessage: LiveData<Message>
-        get() = _receivedChannelMessage
-*/
-    var myCallBackFun: ((fromUser: RtmChannelMember?, message: RtmMessage?) -> Unit)? = null
 
 
-/*    private val _receivedChannelMessageList = MutableLiveData<List<Message>>()
-    val receivedChannelMessageList: LiveData<List<Message>>
-        get() = _receivedChannelMessageList*/
+    var onMessageReceivedCallbackDef: ((fromUser: RtmChannelMember?, message: RtmMessage?) -> Unit)? = null
 
     override fun onMemberCountUpdated(p0: Int) {
         TODO("Not yet implemented")
@@ -31,24 +23,7 @@ class RtmChannelListenerImpl () : RtmChannelListener {
     }
 
     override fun onMessageReceived(message: RtmMessage?, fromUser: RtmChannelMember?) {
-
-        myCallBackFun?.invoke(fromUser, message)
-
-/*        _receivedChannelMessage.value = Message(true, fromUser!!.userId, message!!.text)
-
-
-
-        _receivedChannelMessageList.value = _receivedChannelMessageList.value?.plus(
-            Message(
-                true,
-                fromUser!!.userId,
-                message!!.text
-            )
-        ) ?: listOf(
-            Message(
-                true, fromUser!!.userId, message!!.text
-            )
-        )*/
+        onMessageReceivedCallbackDef?.invoke(fromUser, message)
     }
 
     override fun onImageMessageReceived(p0: RtmImageMessage?, p1: RtmChannelMember?) {

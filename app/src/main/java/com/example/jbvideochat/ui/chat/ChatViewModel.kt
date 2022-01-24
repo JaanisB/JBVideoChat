@@ -102,6 +102,7 @@ class ChatViewModel @Inject constructor(
                     _userToken.value = userResponse.data
                     login()
                     _isLoggedInState.value = true
+                    mRtmChannelListener.onMessageReceivedCallbackDef = onMessegeRecievedCallback
                 }
 
                 is Resource.Loading -> {
@@ -129,11 +130,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    val myFun: (RtmChannelMember?, RtmMessage?) -> Unit =
+    val onMessegeRecievedCallback: (RtmChannelMember?, RtmMessage?) -> Unit =
         { fromUser, message ->
-
             viewModelScope.launch {
-                    _receivedMessageList.value = _receivedMessageList.value?.plus(
+                    _messageList.value = _messageList.value?.plus(
                         Message(
                             true,
                             fromUser!!.userId,
@@ -145,17 +145,6 @@ class ChatViewModel @Inject constructor(
                         )
             }
         }
-
-
-/*    fun updateReceivedMessageList() {
-        viewModelScope.launch {
-            mRtmChannelListener.myCallBackFun = myFun
-        }
-    }*/
-
-    init {
-        mRtmChannelListener.myCallBackFun = myFun
-    }
 
 
     // VIDEO CHAT SDK

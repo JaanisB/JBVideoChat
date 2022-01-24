@@ -11,7 +11,7 @@
         android:label="LoginFragment">
         <action
             android:id="@+id/action_loginFragment_to_videoChatFragment"
-            app:destination="@id/videoChatFragment" />
+            app:destination="@id/videoFragment" />
         <action
             android:id="@+id/action_homeFragment_to_chatFragment"
             app:destination="@id/chatFragment" />
@@ -30,8 +30,8 @@
     </fragment>
 
     <fragment
-        android:id="@+id/videoChatFragment"
-        android:name="com.example.jbvideochat.ui.videochat.VideoChatFragment"
+        android:id="@+id/videoFragment"
+        android:name="com.example.jbvideochat.ui.video.VideoFragment"
         android:label="VideoChatFragment">
         <argument
             android:name="username_v"

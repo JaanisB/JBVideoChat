@@ -1,5 +1,9 @@
 package com.example.jbvideochat.util
 
+import android.text.Layout
+import android.view.Gravity
+import android.view.View
+import android.widget.LinearLayout
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.jbvideochat.model.Message

@@ -30,55 +30,6 @@ class ChatFragment  : BindingFragment<FragmentChatBinding>() {
     ): View? {
 
 
-/*        try {
-
-            // Initialize the RTM client
-
-            mRtmClient = RtmClient.createInstance(requireContext(), Constants.APP_ID_TOKEN,
-                object : RtmClientListener {
-                    override fun onConnectionStateChanged(state: Int, reason: Int) {
-                        val text =
-                            """Connection state changed to ${state}Reason: $reason """.trimIndent()
-                        writeToMessageHistory(text)
-                    }
-
-                    override fun onImageMessageReceivedFromPeer(
-                        rtmImageMessage: RtmImageMessage,
-                        s: String
-                    ) {
-                    }
-
-                    override fun onFileMessageReceivedFromPeer(
-                        rtmFileMessage: RtmFileMessage,
-                        s: String
-                    ) {
-                    }
-
-                    override fun onMediaUploadingProgress(
-                        rtmMediaOperationProgress: RtmMediaOperationProgress,
-                        l: Long
-                    ) {
-                    }
-
-                    override fun onMediaDownloadingProgress(
-                        rtmMediaOperationProgress: RtmMediaOperationProgress,
-                        l: Long
-                    ) {
-                    }
-
-                    override fun onTokenExpired() {}
-                    override fun onPeersOnlineStatusChanged(map: Map<String, Int>) {}
-                    override fun onMessageReceived(rtmMessage: RtmMessage, peerId: String) {
-                        val text = """Message received from $peerId Message: ${rtmMessage.text}"""
-                        writeToMessageHistory(text)
-                    }
-                })
-        } catch (e: Exception) {
-            throw RuntimeException("RTM initialization failed!")
-        }*/
-
-
-
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
